@@ -57,8 +57,21 @@ const deck_arr = [52]Card{
 };
 
 pub fn main() anyerror!void {
-    _ = war(10000);
+    const num_of_times = 100_000;
+    const rows_to_write: [num_of_times]CSVRow = war(num_of_times);
+    var w = (try std.fs.cwd().createFile("./out.csv", .{})).writer();
+    try w.print("who_won, times, len_of_p1, len_of_p2\n", .{});
+    for (rows_to_write) |row| {
+        try w.print("{}, {}, {}, {}\n", .{ row.who_won, row.times, row.len_of_p1, row.len_of_p2 });
+    }
 }
+
+const CSVRow = struct {
+    who_won: bool,
+    times: u32,
+    len_of_p1: usize,
+    len_of_p2: usize,
+};
 
 const Card = enum(u4) {
     two,
@@ -76,7 +89,7 @@ const Card = enum(u4) {
     ace,
 };
 
-fn war(comptime how_many_tries: u32) [how_many_tries]bool {
+fn war(comptime how_many_tries: u32) [how_many_tries]CSVRow {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = &arena.allocator;
@@ -118,6 +131,7 @@ const Deck = struct {
     fn reset(self: *Self) void {
         self.p1.items.len = 0;
         self.p2.items.len = 0;
+        self.count = 0;
         self.war_buf.items.len = 0;
         self.p1.appendSlice(deck_arr[0..26]) catch unreachable;
         self.p2.appendSlice(deck_arr[26..52]) catch unreachable;
@@ -153,12 +167,10 @@ const Deck = struct {
         std.debug.print("items_len: {}\n", .{self.p1.items.len + self.p2.items.len + self.war_buf.items.len});
         std.debug.print("\n", .{});
     }
-    fn _war(self: *Self) bool {
+    fn _war(self: *Self) CSVRow {
         while (self.p1.items.len > 3 and self.p2.items.len > 3) {
-            // self.print();
             const a = self.p1.pop();
             const b = self.p2.pop();
-            // std.debug.print("a:{}, b:{}\n", .{ a, b });
             if (@enumToInt(a) > @enumToInt(b)) {
                 self.p1.insert(0, a) catch unreachable;
                 self.p1.insert(0, b) catch unreachable;
@@ -182,11 +194,16 @@ const Deck = struct {
                 self.count += 1;
             }
         }
-        return self.p1.items.len > self.p2.items.len;
+        return .{
+            .who_won = self.p1.items.len > self.p2.items.len,
+            .times = self.count,
+            .len_of_p1 = self.p1.items.len,
+            .len_of_p2 = self.p2.items.len,
+        };
     }
-    fn war(self: *Self, comptime how_many_tries: u32) [how_many_tries]bool {
+    fn war(self: *Self, comptime how_many_tries: u32) [how_many_tries]CSVRow {
         var index: u32 = 0;
-        var results: [how_many_tries]bool = undefined;
+        var results: [how_many_tries]CSVRow = undefined;
         while (index < how_many_tries) : (index += 1) {
             results[index] = self._war();
             self.reset();
