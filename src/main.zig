@@ -1,7 +1,7 @@
 const std = @import("std");
 const ArrayList = std.ArrayList;
 
-const deck_arr = [52]Card{
+const deck_arr: [52]Card = [13]Card{
     .two,
     .three,
     .four,
@@ -15,54 +15,20 @@ const deck_arr = [52]Card{
     .queen,
     .king,
     .ace,
-    .two,
-    .three,
-    .four,
-    .five,
-    .six,
-    .seven,
-    .eight,
-    .nine,
-    .ten,
-    .jack,
-    .queen,
-    .king,
-    .ace,
-    .two,
-    .three,
-    .four,
-    .five,
-    .six,
-    .seven,
-    .eight,
-    .nine,
-    .ten,
-    .jack,
-    .queen,
-    .king,
-    .ace,
-    .two,
-    .three,
-    .four,
-    .five,
-    .six,
-    .seven,
-    .eight,
-    .nine,
-    .ten,
-    .jack,
-    .queen,
-    .king,
-    .ace,
-};
+} ** 4;
 
 pub fn main() anyerror!void {
     const num_of_times = 100_000;
     const rows_to_write: [num_of_times]CSVRow = war(num_of_times);
     var w = (try std.fs.cwd().createFile("./out.csv", .{})).writer();
-    try w.print("who_won, times, len_of_p1, len_of_p2\n", .{});
+    try w.print("who_won,times,len_of_p1,len_of_p2\n", .{});
     for (rows_to_write) |row| {
-        try w.print("{}, {}, {}, {}\n", .{ row.who_won, row.times, row.len_of_p1, row.len_of_p2 });
+        try w.print("{},{},{},{}\n", .{
+            row.who_won,
+            row.times,
+            row.len_of_p1,
+            row.len_of_p2,
+        });
     }
 }
 
@@ -74,19 +40,19 @@ const CSVRow = struct {
 };
 
 const Card = enum(u4) {
-    two = 1,
-    three = 2,
-    four = 3,
-    five = 4,
-    six = 5,
-    seven = 6,
-    eight = 7,
-    nine = 8,
-    ten = 9,
-    jack = 10,
-    queen = 11,
-    king = 12,
-    ace = 13,
+    two = 0,
+    three = 1,
+    four = 2,
+    five = 3,
+    six = 4,
+    seven = 5,
+    eight = 6,
+    nine = 7,
+    ten = 8,
+    jack = 9,
+    queen = 10,
+    king = 11,
+    ace = 12,
 };
 
 fn war(comptime how_many_tries: u32) [how_many_tries]CSVRow {
@@ -100,10 +66,6 @@ fn war(comptime how_many_tries: u32) [how_many_tries]CSVRow {
 
 const Deck = struct {
     const Self = @This();
-    const State = enum {
-        Regular,
-        InWar,
-    };
 
     p1: ArrayList(Card),
     p2: ArrayList(Card),
