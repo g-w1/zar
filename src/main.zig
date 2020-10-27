@@ -74,19 +74,19 @@ const CSVRow = struct {
 };
 
 const Card = enum(u4) {
-    two,
-    three,
-    four,
-    five,
-    six,
-    seven,
-    eight,
-    nine,
-    ten,
-    jack,
-    queen,
-    king,
-    ace,
+    two = 1,
+    three = 2,
+    four = 3,
+    five = 4,
+    six = 5,
+    seven = 6,
+    eight = 7,
+    nine = 8,
+    ten = 9,
+    jack = 10,
+    queen = 11,
+    king = 12,
+    ace = 13,
 };
 
 fn war(comptime how_many_tries: u32) [how_many_tries]CSVRow {
